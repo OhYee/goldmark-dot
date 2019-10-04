@@ -50,7 +50,7 @@ digraph{a->b}
 go get -u github.com/OhYee/goldmark-dot
 ```
 
-## Sage
+## Usage
 
 ```go
 package main
