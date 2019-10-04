@@ -1,5 +1,7 @@
 # goldmark-dot
 
+![master_test](https://github.com/OhYee/goldmark-dot/workflows/master_test/badge.svg)
+
 goldmark-dot is an extension for [goldmark](https://github.com/yuin/goldmark).  
 
 You can dot language to build svg image in your markdown like [mume](https://github.com/shd101wyy/mume)
