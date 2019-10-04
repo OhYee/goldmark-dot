@@ -13,4 +13,4 @@ jobs:
     - uses: actions/checkout@master
     - run: go get -u ./...
     - run: sudo apt-get install -y graphviz
-    - run: go test -v.
+    - run: go test -v
