@@ -1,6 +1,6 @@
 # goldmark-dot
 
-![master_test](https://github.com/OhYee/goldmark-dot/workflows/master_test/badge.svg)
+[![master_test](https://github.com/OhYee/goldmark-dot/workflows/master_test/badge.svg)](https://github.com/OhYee/goldmark-dot/actions?workflow=master_test)
 
 goldmark-dot is an extension for [goldmark](https://github.com/yuin/goldmark).  
 
