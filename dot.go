@@ -9,6 +9,8 @@ import (
 
 	"github.com/OhYee/godot"
 	ext "github.com/OhYee/goldmark-fenced_codeblock_extension"
+	fp "github.com/OhYee/goutils/functional"
+
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/util"
@@ -17,27 +19,37 @@ import (
 // Default dot extension when there is no other fencedCodeBlock goldmark render extensions
 var Default = NewDotExtension("dot")
 
-func NewDotExtension(languageName string) goldmark.Extender {
-	return ext.NewExt([]ext.RenderMap{
-		ext.RenderMap{
-			Language:       []string{languageName},
-			RenderFunction: NewDot(languageName).Renderer,
-		},
-	}...)
+// RenderMap return the goldmark-fenced_codeblock_extension.RenderMap
+func RenderMap(languages ...string) ext.RenderMap {
+	return ext.RenderMap{
+		Languages:      languages,
+		RenderFunction: NewDot(languages).Renderer,
+	}
 }
 
+// NewDotExtension return the goldmark.Extender
+func NewDotExtension(languages ...string) goldmark.Extender {
+	return ext.NewExt(RenderMap(languages...))
+}
+
+// Dot render struct
 type Dot struct {
-	LanguageName string
+	Languages []string
 }
 
-func NewDot(languageName string) *Dot {
-	return &Dot{languageName}
+// NewDot initial a Dot struct
+func NewDot(languages []string) *Dot {
+	return &Dot{languages}
 }
 
+// Renderer render function
 func (d *Dot) Renderer(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.FencedCodeBlock)
-	language := n.Language(source)
-	if string(language) == d.LanguageName {
+	language := string(n.Language(source))
+
+	if fp.AnyString(func(l string) bool {
+		return l == language
+	}, d.Languages) {
 		if !entering {
 			svg, _ := godot.Dot(d.getLines(source, node))
 			w.Write(svg)

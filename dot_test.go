@@ -2,6 +2,12 @@ package dot
 
 import (
 	"bytes"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"path"
+	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/OhYee/godot"
@@ -36,5 +42,53 @@ func main(){}
 	}
 	if bytes.Compare(buf.Bytes(), []byte(want)) != 0 {
 		t.Errorf("got %s, excepted %s\n", buf.Bytes(), want)
+	}
+}
+
+func Test_demo(t *testing.T) {
+	_, file, _, _ := runtime.Caller(0)
+	goPath, err := exec.LookPath("go")
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	demoDir := path.Join(path.Dir(file), "demo")
+	var cmd *exec.Cmd
+
+	os.Remove(path.Join(demoDir, "demo1", "output.html"))
+	cmd = exec.Command(goPath, "run", path.Join(demoDir, "demo1", "main.go"))
+	if err := cmd.Run(); err != nil {
+		t.Errorf("Error: %+v", err)
+		t.FailNow()
+	}
+	if data, err := ioutil.ReadFile(path.Join(demoDir, "demo1", "output.html")); err != nil {
+		t.Error(err)
+		t.FailNow()
+	} else {
+		if c := strings.Count(string(data), "svg"); c != 5 {
+			t.Errorf("Find %d svg", c)
+			t.FailNow()
+		}
+	}
+
+	os.Remove(path.Join(demoDir, "demo2", "output.html"))
+	cmd = exec.Command(goPath, "run", path.Join(demoDir, "demo2", "main.go"))
+	if err := cmd.Run(); err != nil {
+		t.Errorf("Error: %+v", err)
+		t.FailNow()
+	}
+	if data, err := ioutil.ReadFile(path.Join(demoDir, "demo2", "output.html")); err != nil {
+		t.Error(err)
+		t.FailNow()
+	} else {
+		if c := strings.Count(string(data), "svg"); c != 5 {
+			t.Errorf("Find %d svg", c)
+			t.FailNow()
+		}
+		if c := strings.Count(string(data), "color"); c != 5 {
+			t.Errorf("Find %d color", c)
+			t.FailNow()
+		}
 	}
 }
