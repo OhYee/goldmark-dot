@@ -23,7 +23,7 @@ var Default = NewDotExtension("dot")
 func RenderMap(languages ...string) ext.RenderMap {
 	return ext.RenderMap{
 		Languages:      languages,
-		RenderFunction: NewDot(languages).Renderer,
+		RenderFunction: NewDot(languages...).Renderer,
 	}
 }
 
@@ -38,7 +38,7 @@ type Dot struct {
 }
 
 // NewDot initial a Dot struct
-func NewDot(languages []string) *Dot {
+func NewDot(languages ...string) *Dot {
 	return &Dot{languages}
 }
 
