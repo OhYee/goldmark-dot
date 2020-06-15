@@ -36,7 +36,6 @@ func main(){}
 		),
 		goldmark.WithRendererOptions(),
 	)
-
 	if err := md.Convert(source, &buf); err != nil {
 		t.Error(err)
 	}

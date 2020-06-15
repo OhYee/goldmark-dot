@@ -22,7 +22,7 @@ func main() {
 		goldmark.WithExtensions(
 			extension.GFM,
 			ext.NewExt(
-				dot.RenderMap("dot-svg"),
+				dot.RenderMap(20, "dot-svg"),
 				ext.RenderMap{
 					Languages:      []string{"*"},
 					RenderFunction: ext.GetFencedCodeBlockRendererFunc(highlighting.NewHTMLRenderer()),
@@ -38,7 +38,7 @@ func main() {
 	if err := md.Convert([]byte(raw), &buf); err != nil {
 		panic(err.Error())
 	}
-	
+
 	_, file, _, _ := runtime.Caller(0)
 	if err := ioutil.WriteFile(path.Join(path.Dir(file), "output.html"), buf.Bytes(), 777); err != nil {
 		panic(err.Error())
