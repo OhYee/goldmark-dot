@@ -6,6 +6,7 @@ package dot
 
 import (
 	"bytes"
+	"crypto/sha1"
 
 	"github.com/OhYee/godot"
 	ext "github.com/OhYee/goldmark-fenced_codeblock_extension"
@@ -17,29 +18,31 @@ import (
 )
 
 // Default dot extension when there is no other fencedCodeBlock goldmark render extensions
-var Default = NewDotExtension("dot")
+var Default = NewDotExtension(20, "dot")
 
 // RenderMap return the goldmark-fenced_codeblock_extension.RenderMap
-func RenderMap(languages ...string) ext.RenderMap {
+func RenderMap(length int, languages ...string) ext.RenderMap {
 	return ext.RenderMap{
 		Languages:      languages,
-		RenderFunction: NewDot(languages...).Renderer,
+		RenderFunction: NewDot(length, languages...).Renderer,
 	}
 }
 
 // NewDotExtension return the goldmark.Extender
-func NewDotExtension(languages ...string) goldmark.Extender {
-	return ext.NewExt(RenderMap(languages...))
+func NewDotExtension(length int, languages ...string) goldmark.Extender {
+	return ext.NewExt(RenderMap(length, languages...))
 }
 
 // Dot render struct
 type Dot struct {
 	Languages []string
+	buf       map[string][]byte
+	MaxLength int
 }
 
 // NewDot initial a Dot struct
-func NewDot(languages ...string) *Dot {
-	return &Dot{languages}
+func NewDot(length int, languages ...string) *Dot {
+	return &Dot{Languages: languages, buf: make(map[string][]byte), MaxLength: length}
 }
 
 // Renderer render function
@@ -51,8 +54,20 @@ func (d *Dot) Renderer(w util.BufWriter, source []byte, node ast.Node, entering 
 		return l == language
 	}, d.Languages) {
 		if !entering {
-			svg, _ := godot.Dot(d.getLines(source, node))
-			w.Write(svg)
+			raw := d.getLines(source, node)
+			h := sha1.New()
+			h.Write(raw)
+			hash := string(h.Sum([]byte{}))
+			if result, exist := d.buf[hash]; exist {
+				w.Write([]byte(result))
+			} else {
+				svg, _ := godot.Dot(raw)
+				if len(d.buf) >= d.MaxLength {
+					d.buf = make(map[string][]byte)
+				}
+				d.buf[hash] = svg
+				w.Write(svg)
+			}
 		}
 	}
 	return ast.WalkContinue, nil
