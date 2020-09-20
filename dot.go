@@ -50,7 +50,7 @@ func (d *Dot) Renderer(w util.BufWriter, source []byte, node ast.Node, entering 
 	n := node.(*ast.FencedCodeBlock)
 	language := string(n.Language(source))
 
-	if fp.AnyString(func(l string) bool {
+	if fp.AnyString(func(l string, idx int) bool {
 		return l == language
 	}, d.Languages) {
 		if !entering {
